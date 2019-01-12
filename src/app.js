@@ -7,10 +7,13 @@ const graphSchema = require('./schema/schema.schema');
 
 require('dotenv').config()
 
-mongoose.connect(process.env.DATABASE_URI, { useNewUrlParser: true, keepAlive: true })
+console.log(process.env.NODE_ENV)
+if(process.env.NODE_ENV !== 'development'){
+    mongoose.connect(process.env.DATABASE_URI, { useNewUrlParser: true, keepAlive: true })
     .then(() => {
         console.log('database connected');
     })
+}
 
 const app = express();
 
@@ -21,9 +24,7 @@ app.use('/graph', graphqlHTTP({
 }))
 
 app.get('/', (req, res) => {    
-    res.json({ status: 1 });
+    res.status(200).json({ status: 1 });
 })
 
-app.listen(process.env.PORT, () => {
-    console.log(`app running on port ${process.env.PORT}`)    
-})
+module.exports = app;

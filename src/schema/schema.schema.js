@@ -13,8 +13,8 @@ const CalendarMonth = require('./calendar_month.schema');
 
 const MonthCalendar = require('../models/calendar_months');
 
-const RootQuery = new GraphQLObjectType({
-    name: 'RootQueryType',
+const Query = new GraphQLObjectType({
+    name: 'Query',
     fields: {
         calendar: {
             type: CalendarMonth,
@@ -43,5 +43,5 @@ const RootQuery = new GraphQLObjectType({
 });
 
 module.exports = new GraphQLSchema({
-    query: RootQuery
+    query: Query
 })
