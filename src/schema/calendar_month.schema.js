@@ -8,43 +8,54 @@ const {
     GraphQLID
 } = graphql;
 
+const CalendarDateSchema = require('./calendar_date.schema');
+const MonthData = require('./month_data.schema');
+const YearData = require('./year_data.schema');
+const CalendarDate = require('../models/calendar_dates.model');
+
+const WeekData = new GraphQLObjectType({
+    name: 'week',
+    fields: () => ({
+        wuku: {type: GraphQLString},
+        ingkel: {type: GraphQLString},
+        bhatara: {type: GraphQLString},
+        dates: {
+            type: new GraphQLList(CalendarDateSchema),
+            args: {
+                date: {type: GraphQLInt}
+            },
+            async resolve(parent, args){
+                const { dates }= parent;
+                let data = await CalendarDate.find({_id: {$in: dates}});
+                if(args.date){
+                    return data.filter(({date}) => date === args.date);
+                }
+                // console.log(data)
+                // console.log({parent})
+                // console.log({args})
+                return data;
+            }
+        }
+    })
+});
+
 const CalendarMonth = new GraphQLObjectType({
     name: 'calendar_month',
     fields: () => ({
-        _id: {
+        id: {
             type: GraphQLID
         },
         month: {
-            type: new GraphQLObjectType({
-                name: 'month',
-                fields: () => ({
-                    index: {type: GraphQLInt},
-                    bahasa: {type: GraphQLString},
-                    english: {type: GraphQLString}
-                })
-            })
+            type: MonthData,            
         },
         year: {
-            type: new GraphQLObjectType({
-                name: 'year',
-                fields: () => ({
-                    masehi: {type: GraphQLInt},
-                    caka: {type: GraphQLInt}
-                })
-            })
+            type: YearData
         },
         timestamp: {
             type: GraphQLString
         },
         weeks: {
-            type: new GraphQLList(new GraphQLObjectType({
-                name: 'week',
-                fields: () => ({
-                    wuku: {type: GraphQLString},
-                    ingkel: {type: GraphQLString},
-                    bhatara: {type: GraphQLString}
-                })
-            }))
+            type: new GraphQLList(WeekData)            
         }
     })
 })

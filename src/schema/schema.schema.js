@@ -1,17 +1,16 @@
 const graphql = require('graphql');
 
 const {
-    GraphQLObjectType,
-    GraphQLString,
-    GraphQLInt,
-    GraphQLList,    
-    GraphQLID,
+    GraphQLObjectType,    
+    GraphQLInt,    
     GraphQLSchema
 } = graphql;
 
 const CalendarMonth = require('./calendar_month.schema');
+const CalendarDate = require('./calendar_date.schema');
 
-const MonthCalendar = require('../models/calendar_months');
+const MonthCalendarModel = require('../models/calendar_months.model');
+const DateCalendarModel = require('../models/calendar_dates.model');
 
 const Query = new GraphQLObjectType({
     name: 'Query',
@@ -23,20 +22,52 @@ const Query = new GraphQLObjectType({
                 year: {type: GraphQLInt}
             },
             async resolve(parent, args){
-                const data = await MonthCalendar.findOne({
+                let data = await MonthCalendarModel.findOne({
+                    'year.masehi': args.year,
+                    'month.index': args.month
+                });                
+                if(!data){ //cannot find the month calendar
+                    return null;
+                }                
+                return data;
+            }
+        },
+        date: {
+            type: CalendarDate,
+            args: {
+                month: {type: GraphQLInt},
+                year: {type: GraphQLInt},
+                date: {type: GraphQLInt}
+            },
+            async resolve(parent, args){
+                let data = await DateCalendarModel.findOne({
+                    date: args.date,
                     'year.masehi': args.year,
                     'month.index': args.month
                 });
-                console.log({data});
-                const month = {
-                    _id:`${data._id}`,
-                    month: data.month,
-                    year: data.year,
-                    timestamp: data.timestamp,
-                    weeks: data.weeks
+
+                if(!data){ // cannot found the date
+                    return null;
                 }
-                console.log(month)
-                return month;
+
+                const { id } = data;
+                
+                let { weeks } = await MonthCalendarModel.findOne({
+                    'year.masehi': args.year,
+                    'month.index': args.month
+                });          
+                      
+                const week = weeks.find(week => {                    
+                    let find = week.dates.findIndex(date => {                        
+                        return date == id
+                    });                    
+                    console.log({find})
+                    return find !== -1;
+                })
+                data.wuku = week.wuku;
+                data.ingkel = week.ingkel;
+                data.bhatara = week.bhatara;                
+                return data;
             }
         }
     }
@@ -44,4 +75,4 @@ const Query = new GraphQLObjectType({
 
 module.exports = new GraphQLSchema({
     query: Query
-})
+});

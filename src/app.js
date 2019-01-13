@@ -7,20 +7,24 @@ const graphSchema = require('./schema/schema.schema');
 
 require('dotenv').config()
 
-console.log(process.env.NODE_ENV)
-if(process.env.NODE_ENV !== 'development'){
-    mongoose.connect(process.env.DATABASE_URI, { useNewUrlParser: true, keepAlive: true })
+console.log(process.env.NODE_ENV);
+
+mongoose.connect(process.env.DATABASE_URI, { useNewUrlParser: true, keepAlive: true })
     .then(() => {
         console.log('database connected');
     })
-}
 
 const app = express();
 
 app.use('/v1', v1Router);
-app.use('/graph', graphqlHTTP({
+app.use('/graphi', graphqlHTTP({
     schema: graphSchema,
     graphiql: true
+}));
+
+app.use('/graph', graphqlHTTP({
+    schema: graphSchema,
+    graphiql: false
 }))
 
 app.get('/', (req, res) => {    
