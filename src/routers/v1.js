@@ -2,8 +2,11 @@ const express = require('express');
 const { param, validationResult } = require('express-validator/check')
 const router = express.Router();
 
-const MonthCalendar = require('../models/calendar_months');
-const DateCalendar = require('../models/calendar_dates');
+const { dateChecker } = require('../helpers/validators');
+
+//importing model
+const MonthCalendar = require('../models/calendar_months.model');
+const DateCalendar = require('../models/calendar_dates.model');
 
 router.get('/calendar/:year/:month/', [
     param('year')
@@ -41,8 +44,8 @@ router.get('/calendar/:year/:month/', [
     res.status(200).json(monthCalendar);
 });
 
-router.get('/calendar/:year/:month/:date', (req, res) => {
-    console.log({ req: req.params });
-});
+// router.get('/calendar/:year/:month/:date', (req, res) => {
+//     console.log({ req: req.params });
+// });
 
 module.exports = router;

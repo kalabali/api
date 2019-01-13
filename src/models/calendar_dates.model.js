@@ -17,6 +17,10 @@ const DateSchema = mongoose.Schema({
         masehi: Number,
         caka: Number
     },
+    penanggal_pangelong: {
+        status: String,
+        value: Number
+    },
     wewaran: {
         ekawara : String,
         dwiwara : String,
